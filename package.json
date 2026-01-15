@@ -1,0 +1,12 @@
+{
+    "name": "pocket-matip",
+    "version": "1.0.0",
+    "description": "Pocket Matip PWA",
+    "scripts": {
+        "dev": "npx serve public",
+        "build": "echo 'Static site - no build needed'"
+    },
+    "dependencies": {
+        "serve": "^14.2.1"
+    }
+}

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pocket Matip - 営業活動アシスタント</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">📱</div>
+                    <h1>Pocket Matip</h1>
+                </div>
+                <p>営業活動特化型モバイルアシスタント</p>
+            </div>
+        </div>
+
+        <!-- タブナビゲーション -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="home">
+                <span>🏠</span>
+                ホーム
+            </button>
+            <button class="tab-btn" data-tab="record">
+                <span>🎙️</span>
+                録音
+            </button>
+            <button class="tab-btn" data-tab="tasks">
+                <span>✅</span>
+                タスク
+            </button>
+            <button class="tab-btn" data-tab="search">
+                <span>🔍</span>
+                検索
+            </button>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- ホームタブ -->
+            <div class="tab-panel active" id="home-panel">
+                <!-- 統計 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayMeetings">3</div>
+                        <div class="stat-label">本日の商談</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingTasks">5</div>
+                        <div class="stat-label">未完了タスク</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="weekRecords">12</div>
+                        <div class="stat-label">今週の記録</div>
+                    </div>
+                </div>
+
+                <!-- クイックアクション -->
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="switchTab('record')">
+                        <div class="quick-action-icon">🎤</div>
+                        <div class="quick-action-title">音声録音</div>
+                        <div class="quick-action-desc">商談・メモを記録</div>
+                    </div>
+                    <div class="quick-action" onclick="openQuickMemo()">
+                        <div class="quick-action-icon">📝</div>
+                        <div class="quick-action-title">クイックメモ</div>
+                        <div class="quick-action-desc">テキストで素早く入力</div>
+                    </div>
+                    <div class="quick-action" onclick="openPhotoCapture()">
+                        <div class="quick-action-icon">📷</div>
+                        <div class="quick-action-title">写真撮影</div>
+                        <div class="quick-action-desc">現場写真を追加</div>
+                    </div>
+                    <div class="quick-action" onclick="switchTab('search')">
+                        <div class="quick-action-icon">🔎</div>
+                        <div class="quick-action-title">履歴検索</div>
+                        <div class="quick-action-desc">過去の商談を検索</div>
+                    </div>
+                </div>
+
+                <!-- 最近の記録 -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋</span>
+                        最近の記録
+                    </div>
+                    <div id="recentRecords">
+                        <div class="history-item" onclick="viewRecord(1)">
+                            <div class="history-header">
+                                <span class="history-customer">○○製作所</span>
+                                <span class="history-date">今日 14:30</span>
+                            </div>
+                            <div class="history-summary">ポンプ交換工事の打ち合わせ。納期は2週間後、予算150万円で調整中。</div>
+                            <div class="history-tags">
+                                <span class="tag">ポンプ</span>
+                                <span class="tag">工事</span>
+                            </div>
+                        </div>
+                        <div class="history-item" onclick="viewRecord(2)">
+                            <div class="history-header">
+                                <span class="history-customer">△△工業</span>
+                                <span class="history-date">今日 10:00</span>
+                            </div>
+                            <div class="history-summary">コンベアラインの省エネ化提案。補助金活用を検討。</div>
+                            <div class="history-tags">
+                                <span class="tag">コンベア</span>
+                                <span class="tag">省エネ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日のタスク -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>⚡</span>
+                        今日のタスク
+                        <span class="badge">3</span>
+                    </div>
+                    <ul class="task-list" id="todayTaskList">
+                        <li class="task-item">
+                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                            <div class="task-content">
+                                <div class="task-title">○○製作所への見積書提出</div>
+                                <div class="task-meta">
+                                    <span>期限: 今日 17:00</span>
+                                    <span class="task-priority priority-high">高</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                            <div class="task-content">
+                                <div class="task-title">メーカーB社へ在庫確認</div>
+                                <div class="task-meta">
+                                    <span>期限: 明日中</span>
+                                    <span class="task-priority priority-medium">中</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 録音タブ -->
+            <div class="tab-panel" id="record-panel">
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋</span>
+                        商談情報
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">顧客名</label>
+                        <input type="text" class="form-input" id="customerName" placeholder="例: ○○株式会社">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担当者名</label>
+                        <input type="text" class="form-input" id="contactPerson" placeholder="例: 田中部長">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">案件名（任意）</label>
+                        <input type="text" class="form-input" id="projectName" placeholder="例: ポンプ交換工事">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>🎙️</span>
+                        音声録音
+                    </div>
+                    <div class="record-section">
+                        <div class="record-status" id="recordStatus">タップして録音開始</div>
+
+                        <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+                            🎤
+                        </button>
+
+                        <div class="waveform hidden" id="waveform">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                        </div>
+
+                        <div class="record-timer" id="recordTimer">00:00</div>
+
+                        <div class="record-controls">
+                            <button class="btn btn-secondary hidden" id="pauseBtn" onclick="pauseRecording()">
+                                ⏸️ 一時停止
+                            </button>
+                            <button class="btn btn-secondary hidden" id="resumeBtn" onclick="resumeRecording()">
+                                ▶️ 再開
+                            </button>
+                            <button class="btn btn-danger hidden" id="stopBtn" onclick="stopRecording()">
+                                ⏹️ 停止
+                            </button>
+                        </div>
+
+                        <audio id="audioPlayer" class="hidden" controls></audio>
+                    </div>
+                </div>
+
+                <!-- 画像添付 -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>📷</span>
+                        写真を添付
+                    </div>
+                    <div class="image-upload" onclick="document.getElementById('imageInput').click()">
+                        <div class="image-upload-icon">📸</div>
+                        <div class="image-upload-text">タップして写真を追加</div>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" multiple hidden
+                        onchange="handleImageUpload(event)">
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+
+                <!-- AI処理中 -->
+                <div class="card hidden" id="processingCard">
+                    <div class="spinner"></div>
+                    <p class="processing-text">AIが議事録を作成中...</p>
+                    <p class="processing-text" style="margin-top: 8px; font-size: 12px;">約1〜2分お待ちください</p>
+                </div>
+
+                <!-- 議事録結果 -->
+                <div class="card hidden" id="minutesCard">
+                    <div class="card-title">
+                        <span>📝</span>
+                        AI生成議事録
+                    </div>
+                    <div class="minutes-section" id="minutesContent"></div>
+                    <div class="record-controls" style="margin-top: 16px;">
+                        <button class="btn btn-secondary" onclick="editMinutes()">✏️ 編集</button>
+                        <button class="btn btn-success" onclick="shareMinutes()">📤 共有</button>
+                        <button class="btn btn-primary" onclick="saveAndNew()">✅ 保存</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- タスクタブ -->
+            <div class="tab-panel" id="tasks-panel">
+                <div class="card">
+                    <div class="card-title">
+                        <span>➕</span>
+                        タスクを追加
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-input" id="newTaskInput" placeholder="タスクを入力...">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <select class="form-input" id="taskPriority" style="flex: 1;">
+                            <option value="high">高優先度</option>
+                            <option value="medium" selected>通常</option>
+                            <option value="low">低優先度</option>
+                        </select>
+                        <input type="date" class="form-input" id="taskDueDate" style="flex: 1;">
+                        <button class="btn btn-primary" onclick="addTask()">追加</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋</span>
+                        未完了タスク
+                    </div>
+                    <ul class="task-list" id="allTaskList">
+                        <li class="task-item">
+                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                            <div class="task-content">
+                                <div class="task-title">○○製作所への見積書提出</div>
+                                <div class="task-meta">
+                                    <span>📅 今日 17:00</span>
+                                    <span class="task-priority priority-high">高</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                            <div class="task-content">
+                                <div class="task-title">メーカーB社へ在庫確認</div>
+                                <div class="task-meta">
+                                    <span>📅 明日中</span>
+                                    <span class="task-priority priority-medium">中</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                            <div class="task-content">
+                                <div class="task-title">△△工業 省エネ補助金資料準備</div>
+                                <div class="task-meta">
+                                    <span>📅 1/16</span>
+                                    <span class="task-priority priority-medium">中</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                            <div class="task-content">
+                                <div class="task-title">□□電機 配管図面確認依頼</div>
+                                <div class="task-meta">
+                                    <span>📅 1/18</span>
+                                    <span class="task-priority priority-low">低</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>✅</span>
+                        完了済み
+                    </div>
+                    <ul class="task-list" id="completedTaskList">
+                        <li class="task-item" style="opacity: 0.6;">
+                            <div class="task-checkbox checked"></div>
+                            <div class="task-content">
+                                <div class="task-title" style="text-decoration: line-through;">××産業 初回訪問アポ取得</div>
+                                <div class="task-meta">
+                                    <span>完了: 今日 11:00</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 検索タブ -->
+            <div class="tab-panel" id="search-panel">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="顧客名、製品名、キーワードで検索...">
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>🕐</span>
+                        最近の検索
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span class="tag" style="cursor: pointer;" onclick="searchKeyword('ポンプ')">ポンプ</span>
+                        <span class="tag" style="cursor: pointer;" onclick="searchKeyword('コンベア')">コンベア</span>
+                        <span class="tag" style="cursor: pointer;" onclick="searchKeyword('○○製作所')">○○製作所</span>
+                        <span class="tag" style="cursor: pointer;" onclick="searchKeyword('省エネ')">省エネ</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📁</span>
+                        商談履歴
+                    </div>
+                    <div id="searchResults">
+                        <div class="history-item" onclick="viewRecord(1)">
+                            <div class="history-header">
+                                <span class="history-customer">○○製作所</span>
+                                <span class="history-date">2026/01/14 14:30</span>
+                            </div>
+                            <div class="history-summary">ポンプ交換工事の打ち合わせ。納期は2週間後、予算150万円で調整中。</div>
+                            <div class="history-tags">
+                                <span class="tag">ポンプ</span>
+                                <span class="tag">工事</span>
+                                <span class="tag">XYZ-500</span>
+                            </div>
+                        </div>
+                        <div class="history-item" onclick="viewRecord(2)">
+                            <div class="history-header">
+                                <span class="history-customer">△△工業</span>
+                                <span class="history-date">2026/01/14 10:00</span>
+                            </div>
+                            <div class="history-summary">コンベアラインの省エネ化提案。補助金活用を検討。</div>
+                            <div class="history-tags">
+                                <span class="tag">コンベア</span>
+                                <span class="tag">省エネ</span>
+                                <span class="tag">補助金</span>
+                            </div>
+                        </div>
+                        <div class="history-item" onclick="viewRecord(3)">
+                            <div class="history-header">
+                                <span class="history-customer">□□電機</span>
+                                <span class="history-date">2026/01/13 15:00</span>
+                            </div>
+                            <div class="history-summary">製造ライン増設の相談。三相200Vの配電工事も含めて提案予定。</div>
+                            <div class="history-tags">
+                                <span class="tag">ライン増設</span>
+                                <span class="tag">配電工事</span>
+                            </div>
+                        </div>
+                        <div class="history-item" onclick="viewRecord(4)">
+                            <div class="history-header">
+                                <span class="history-customer">××産業</span>
+                                <span class="history-date">2026/01/12 11:00</span>
+                            </div>
+                            <div class="history-summary">新規開拓の初回訪問。FA機器の定期購入を検討中。まずは消耗品から取引開始。</div>
+                            <div class="history-tags">
+                                <span class="tag">新規</span>
+                                <span class="tag">消耗品</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- クイックメモモーダル -->
+    <div class="modal-overlay hidden" id="quickMemoModal">
+        <div class="modal">
+            <div class="modal-title">📝 クイックメモ</div>
+            <div class="form-group">
+                <label class="form-label">顧客名</label>
+                <input type="text" class="form-input" id="memoCustomer" placeholder="顧客名を入力">
+            </div>
+            <div class="form-group">
+                <label class="form-label">メモ内容</label>
+                <textarea class="form-input" id="memoContent" rows="5" placeholder="メモを入力..."
+                    style="resize: vertical;"></textarea>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeQuickMemo()">キャンセル</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="saveQuickMemo()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module" src="/app.js"></script>
+</body>
+
+</html>
