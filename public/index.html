@@ -103,28 +103,7 @@
                         最近の記録
                     </div>
                     <div id="recentRecords">
-                        <div class="history-item" onclick="viewRecord(1)">
-                            <div class="history-header">
-                                <span class="history-customer">○○製作所</span>
-                                <span class="history-date">今日 14:30</span>
-                            </div>
-                            <div class="history-summary">ポンプ交換工事の打ち合わせ。納期は2週間後、予算150万円で調整中。</div>
-                            <div class="history-tags">
-                                <span class="tag">ポンプ</span>
-                                <span class="tag">工事</span>
-                            </div>
-                        </div>
-                        <div class="history-item" onclick="viewRecord(2)">
-                            <div class="history-header">
-                                <span class="history-customer">△△工業</span>
-                                <span class="history-date">今日 10:00</span>
-                            </div>
-                            <div class="history-summary">コンベアラインの省エネ化提案。補助金活用を検討。</div>
-                            <div class="history-tags">
-                                <span class="tag">コンベア</span>
-                                <span class="tag">省エネ</span>
-                            </div>
-                        </div>
+                        <div style="text-align:center; padding:20px; color:var(--text-muted);">読み込み中...</div>
                     </div>
                 </div>
 
@@ -136,26 +115,6 @@
                         <span class="badge">3</span>
                     </div>
                     <ul class="task-list" id="todayTaskList">
-                        <li class="task-item">
-                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
-                            <div class="task-content">
-                                <div class="task-title">○○製作所への見積書提出</div>
-                                <div class="task-meta">
-                                    <span>期限: 今日 17:00</span>
-                                    <span class="task-priority priority-high">高</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="task-item">
-                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
-                            <div class="task-content">
-                                <div class="task-title">メーカーB社へ在庫確認</div>
-                                <div class="task-meta">
-                                    <span>期限: 明日中</span>
-                                    <span class="task-priority priority-medium">中</span>
-                                </div>
-                            </div>
-                        </li>
                     </ul>
                 </div>
             </div>
@@ -285,46 +244,6 @@
                         未完了タスク
                     </div>
                     <ul class="task-list" id="allTaskList">
-                        <li class="task-item">
-                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
-                            <div class="task-content">
-                                <div class="task-title">○○製作所への見積書提出</div>
-                                <div class="task-meta">
-                                    <span>📅 今日 17:00</span>
-                                    <span class="task-priority priority-high">高</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="task-item">
-                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
-                            <div class="task-content">
-                                <div class="task-title">メーカーB社へ在庫確認</div>
-                                <div class="task-meta">
-                                    <span>📅 明日中</span>
-                                    <span class="task-priority priority-medium">中</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="task-item">
-                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
-                            <div class="task-content">
-                                <div class="task-title">△△工業 省エネ補助金資料準備</div>
-                                <div class="task-meta">
-                                    <span>📅 1/16</span>
-                                    <span class="task-priority priority-medium">中</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="task-item">
-                            <div class="task-checkbox" onclick="toggleTask(this)"></div>
-                            <div class="task-content">
-                                <div class="task-title">□□電機 配管図面確認依頼</div>
-                                <div class="task-meta">
-                                    <span>📅 1/18</span>
-                                    <span class="task-priority priority-low">低</span>
-                                </div>
-                            </div>
-                        </li>
                     </ul>
                 </div>
 
@@ -334,15 +253,6 @@
                         完了済み
                     </div>
                     <ul class="task-list" id="completedTaskList">
-                        <li class="task-item" style="opacity: 0.6;">
-                            <div class="task-checkbox checked"></div>
-                            <div class="task-content">
-                                <div class="task-title" style="text-decoration: line-through;">××産業 初回訪問アポ取得</div>
-                                <div class="task-meta">
-                                    <span>完了: 今日 11:00</span>
-                                </div>
-                            </div>
-                        </li>
                     </ul>
                 </div>
             </div>
@@ -373,52 +283,7 @@
                         商談履歴
                     </div>
                     <div id="searchResults">
-                        <div class="history-item" onclick="viewRecord(1)">
-                            <div class="history-header">
-                                <span class="history-customer">○○製作所</span>
-                                <span class="history-date">2026/01/14 14:30</span>
-                            </div>
-                            <div class="history-summary">ポンプ交換工事の打ち合わせ。納期は2週間後、予算150万円で調整中。</div>
-                            <div class="history-tags">
-                                <span class="tag">ポンプ</span>
-                                <span class="tag">工事</span>
-                                <span class="tag">XYZ-500</span>
-                            </div>
-                        </div>
-                        <div class="history-item" onclick="viewRecord(2)">
-                            <div class="history-header">
-                                <span class="history-customer">△△工業</span>
-                                <span class="history-date">2026/01/14 10:00</span>
-                            </div>
-                            <div class="history-summary">コンベアラインの省エネ化提案。補助金活用を検討。</div>
-                            <div class="history-tags">
-                                <span class="tag">コンベア</span>
-                                <span class="tag">省エネ</span>
-                                <span class="tag">補助金</span>
-                            </div>
-                        </div>
-                        <div class="history-item" onclick="viewRecord(3)">
-                            <div class="history-header">
-                                <span class="history-customer">□□電機</span>
-                                <span class="history-date">2026/01/13 15:00</span>
-                            </div>
-                            <div class="history-summary">製造ライン増設の相談。三相200Vの配電工事も含めて提案予定。</div>
-                            <div class="history-tags">
-                                <span class="tag">ライン増設</span>
-                                <span class="tag">配電工事</span>
-                            </div>
-                        </div>
-                        <div class="history-item" onclick="viewRecord(4)">
-                            <div class="history-header">
-                                <span class="history-customer">××産業</span>
-                                <span class="history-date">2026/01/12 11:00</span>
-                            </div>
-                            <div class="history-summary">新規開拓の初回訪問。FA機器の定期購入を検討中。まずは消耗品から取引開始。</div>
-                            <div class="history-tags">
-                                <span class="tag">新規</span>
-                                <span class="tag">消耗品</span>
-                            </div>
-                        </div>
+                        <div style="text-align:center; padding:20px; color:var(--text-muted);">検索してください</div>
                     </div>
                 </div>
             </div>
