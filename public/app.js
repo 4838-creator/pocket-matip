@@ -354,6 +354,8 @@ function toggleTask(checkbox) {
         title.style.textDecoration = 'none';
         item.style.opacity = '1';
     }
+
+    updateStats(); // 統計更新
 }
 
 function addTask() {
@@ -382,6 +384,8 @@ function addTask() {
 
     document.getElementById('allTaskList').prepend(li);
     input.value = '';
+
+    updateStats(); // 統計更新
 }
 
 // ========== クイックメモ ==========
@@ -692,6 +696,10 @@ async function updateStats() {
         document.getElementById('todayMeetings').textContent = todayCount;
         document.getElementById('pendingTasks').textContent = pendingCount;
         document.getElementById('weekRecords').textContent = weekCount;
+
+        // バッジ更新
+        const badge = document.getElementById('todayTaskBadge');
+        if (badge) badge.textContent = pendingCount;
 
     } catch (e) {
         console.error("Error updating stats:", e);
