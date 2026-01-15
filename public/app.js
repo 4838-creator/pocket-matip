@@ -642,6 +642,61 @@ async function loadRecentRecords() {
 
 // 初期化時に読み込み
 loadRecentRecords();
+updateStats();
+
+// ========== 統計更新 ==========
+async function updateStats() {
+    try {
+        // 本日の開始時刻と今週の開始時刻を計算
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const dayOfWeek = now.getDay();
+        const weekStart = new Date(todayStart);
+        weekStart.setDate(weekStart.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // 月曜開始
+
+        // Firestoreから全記録を取得
+        const q = window.FirestoreSDK.query(
+            window.FirestoreSDK.collection(window.db, "records"),
+            window.FirestoreSDK.orderBy("createdAt", "desc"),
+            window.FirestoreSDK.limit(100)
+        );
+        const querySnapshot = await window.FirestoreSDK.getDocs(q);
+
+        let todayCount = 0;
+        let weekCount = 0;
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.createdAt) {
+                const recordDate = data.createdAt.toDate();
+
+                // 本日の記録
+                if (recordDate >= todayStart) {
+                    todayCount++;
+                }
+
+                // 今週の記録
+                if (recordDate >= weekStart) {
+                    weekCount++;
+                }
+            }
+        });
+
+        // 未完了タスク数（HTMLのタスクリストからカウント）
+        const taskItems = document.querySelectorAll('#allTaskList .task-item');
+        const pendingCount = Array.from(taskItems).filter(item =>
+            !item.querySelector('.task-checkbox.checked')
+        ).length;
+
+        // UI更新
+        document.getElementById('todayMeetings').textContent = todayCount;
+        document.getElementById('pendingTasks').textContent = pendingCount;
+        document.getElementById('weekRecords').textContent = weekCount;
+
+    } catch (e) {
+        console.error("Error updating stats:", e);
+    }
+}
 
 // 日付入力のデフォルト値設定
 document.getElementById('taskDueDate').valueAsDate = new Date();
