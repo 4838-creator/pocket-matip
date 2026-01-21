@@ -450,32 +450,82 @@ async function performSearch(queryText) {
     const resultsDiv = document.getElementById('searchResults');
     resultsDiv.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">検索中...</div>';
 
-    if (!queryText) {
-        // クエリがない場合は最近のものを表示
-        performSearchQuery(window.FirestoreSDK.query(
-            window.FirestoreSDK.collection(window.db, "records"),
-            window.FirestoreSDK.orderBy("createdAt", "desc"),
-            window.FirestoreSDK.limit(10)
-        ));
-        return;
-    }
-
     try {
-        // Firestoreでの検索（顧客名での前方一致）
-        // ※本来は全文検索サービスが必要だが、簡易的に顧客名検索とする
+        // 全データを取得してクライアント側でフィルタリング
         const q = window.FirestoreSDK.query(
             window.FirestoreSDK.collection(window.db, "records"),
-            window.FirestoreSDK.orderBy("customer"),
-            window.FirestoreSDK.startAt(queryText),
-            window.FirestoreSDK.endAt(queryText + '\uf8ff'),
-            window.FirestoreSDK.limit(20)
+            window.FirestoreSDK.orderBy("createdAt", "desc"),
+            window.FirestoreSDK.limit(100)
         );
 
-        performSearchQuery(q);
+        const querySnapshot = await window.FirestoreSDK.getDocs(q);
+
+        if (querySnapshot.empty) {
+            resultsDiv.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">記録がありません</div>';
+            return;
+        }
+
+        // クライアント側でフィルタリング
+        const searchLower = queryText.toLowerCase();
+        const results = [];
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const customer = (data.customer || '').toLowerCase();
+            const content = (data.content || '').toLowerCase();
+            const project = (data.project || '').toLowerCase();
+
+            // 顧客名、内容、案件名のいずれかに検索語が含まれればマッチ
+            if (!queryText || customer.includes(searchLower) || content.includes(searchLower) || project.includes(searchLower)) {
+                results.push({ id: doc.id, data: data });
+            }
+        });
+
+        if (results.length === 0) {
+            resultsDiv.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">該当する記録はありません</div>';
+            return;
+        }
+
+        resultsDiv.innerHTML = '';
+
+        results.forEach((item) => {
+            const data = item.data;
+            const date = data.createdAt ? data.createdAt.toDate() : new Date();
+            const dateStr = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+            const div = document.createElement('div');
+            div.className = 'history-item';
+
+            let summary = '';
+            let tags = '';
+
+            if (data.type === 'memo') {
+                summary = data.content.substring(0, 60) + (data.content.length > 60 ? '...' : '');
+                tags = '<span class="tag">メモ</span>';
+            } else {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data.content;
+                summary = tempDiv.textContent.substring(0, 60) + '...';
+                tags = `<span class="tag">商談</span><span class="tag">${data.project || '案件なし'}</span>`;
+            }
+
+            div.innerHTML = `
+                <div class="history-header">
+                    <span class="history-customer">${data.customer || '名称なし'}</span>
+                    <span class="history-date">${dateStr}</span>
+                </div>
+                <div class="history-summary">${summary}</div>
+                <div class="history-tags">
+                    ${tags}
+                </div>
+            `;
+            div.onclick = () => viewRecord(item.id);
+            resultsDiv.appendChild(div);
+        });
 
     } catch (e) {
         console.error("Search error: ", e);
-        resultsDiv.innerHTML = '<div style="text-align:center; color:var(--accent-danger);">検索エラーが発生しました<br><small>インデックス作成が必要な場合があります</small></div>';
+        resultsDiv.innerHTML = '<div style="text-align:center; color:var(--accent-danger);">検索エラーが発生しました</div>';
     }
 }
 
