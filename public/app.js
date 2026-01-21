@@ -589,7 +589,7 @@ async function saveAndNew() {
     const content = document.getElementById('minutesContent').innerHTML;
 
     try {
-        // Firestoreに保存
+        // Firestoreに保存（画像はBase64で保存）
         await window.FirestoreSDK.addDoc(window.FirestoreSDK.collection(window.db, "records"), {
             type: 'negotiation',
             customer: customer,
@@ -597,9 +597,8 @@ async function saveAndNew() {
             project: project,
             content: content,
             createdAt: window.FirestoreSDK.Timestamp.now(),
-            // 将来的には音声や画像のURLもここに保存
             audioUrl: null,
-            imageUrls: []
+            imageUrls: uploadedImages // Base64画像データを保存
         });
 
         alert('商談記録を保存しました！');
@@ -823,6 +822,20 @@ async function viewRecord(id) {
             `;
         } else {
             title.textContent = '📋 商談記録詳細';
+
+            // 画像HTML生成
+            let imagesHtml = '';
+            if (data.imageUrls && data.imageUrls.length > 0) {
+                imagesHtml = `
+                    <div class="minutes-item">
+                        <h4>📷 添付画像</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${data.imageUrls.map(url => `<img src="${url}" style="max-width: 100px; max-height: 100px; border-radius: 8px; cursor: pointer;" onclick="window.open('${url}', '_blank')">`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
             content.innerHTML = `
                 <div class="minutes-section" style="padding: 0;">
                     <div class="minutes-item">
@@ -845,6 +858,7 @@ async function viewRecord(id) {
                         <h4>📝 内容</h4>
                         <div style="font-size: 14px; line-height: 1.6;">${data.content}</div>
                     </div>
+                    ${imagesHtml}
                 </div>
             `;
         }
