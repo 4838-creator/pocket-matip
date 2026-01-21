@@ -299,6 +299,20 @@
         </div>
     </div>
 
+    <!-- 記録詳細モーダル -->
+    <div class="modal-overlay hidden" id="recordDetailModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-title" id="recordDetailTitle">📋 記録詳細</div>
+            <div id="recordDetailContent" style="max-height: 60vh; overflow-y: auto;">
+                <!-- 動的に内容が挿入される -->
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeRecordDetail()">閉じる</button>
+                <button class="btn btn-danger" style="flex: 1;" onclick="deleteRecord()">🗑️ 削除</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script type="module" src="/app.js"></script>
 </body>

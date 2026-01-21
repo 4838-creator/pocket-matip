@@ -1,6 +1,6 @@
 // Firebase SDK (Module import)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, deleteDoc, query, orderBy, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -19,7 +19,7 @@ const db = getFirestore(app);
 
 // Make services available globally
 window.db = db;
-window.FirestoreSDK = { collection, addDoc, getDocs, query, orderBy, limit, Timestamp };
+window.FirestoreSDK = { collection, addDoc, getDocs, getDoc, doc, deleteDoc, query, orderBy, limit, Timestamp };
 
 console.log("Firebase initialized successfully");
 
@@ -727,4 +727,107 @@ window.searchKeyword = searchKeyword;
 window.saveAndNew = saveAndNew;
 window.editMinutes = () => alert('編集機能は開発中です');
 window.shareMinutes = () => alert('共有機能は開発中です');
-window.viewRecord = (id) => alert('詳細表示機能は開発中です: ' + id);
+
+// ========== 記録詳細表示 ==========
+let currentRecordId = null;
+
+async function viewRecord(id) {
+    currentRecordId = id;
+    const modal = document.getElementById('recordDetailModal');
+    const content = document.getElementById('recordDetailContent');
+    const title = document.getElementById('recordDetailTitle');
+
+    content.innerHTML = '<div style="text-align:center; padding:20px;">読み込み中...</div>';
+    modal.classList.remove('hidden');
+
+    try {
+        const docRef = window.FirestoreSDK.doc(window.db, "records", id);
+        const docSnap = await window.FirestoreSDK.getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            content.innerHTML = '<div style="text-align:center; color:var(--accent-danger);">記録が見つかりません</div>';
+            return;
+        }
+
+        const data = docSnap.data();
+        const date = data.createdAt ? data.createdAt.toDate() : new Date();
+        const dateStr = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+        if (data.type === 'memo') {
+            title.textContent = '📝 メモ詳細';
+            content.innerHTML = `
+                <div class="minutes-section" style="padding: 0;">
+                    <div class="minutes-item">
+                        <h4>👤 顧客名</h4>
+                        <p>${data.customer || '（未設定）'}</p>
+                    </div>
+                    <div class="minutes-item">
+                        <h4>📅 作成日時</h4>
+                        <p>${dateStr}</p>
+                    </div>
+                    <div class="minutes-item">
+                        <h4>📋 内容</h4>
+                        <p style="white-space: pre-wrap;">${data.content}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            title.textContent = '📋 商談記録詳細';
+            content.innerHTML = `
+                <div class="minutes-section" style="padding: 0;">
+                    <div class="minutes-item">
+                        <h4>👤 顧客名</h4>
+                        <p>${data.customer || '（未設定）'}</p>
+                    </div>
+                    <div class="minutes-item">
+                        <h4>👔 担当者</h4>
+                        <p>${data.contact || '（未設定）'}</p>
+                    </div>
+                    <div class="minutes-item">
+                        <h4>📁 案件名</h4>
+                        <p>${data.project || '（未設定）'}</p>
+                    </div>
+                    <div class="minutes-item">
+                        <h4>📅 作成日時</h4>
+                        <p>${dateStr}</p>
+                    </div>
+                    <div class="minutes-item">
+                        <h4>📝 内容</h4>
+                        <div style="font-size: 14px; line-height: 1.6;">${data.content}</div>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error("Error fetching record:", e);
+        content.innerHTML = '<div style="text-align:center; color:var(--accent-danger);">読み込みに失敗しました</div>';
+    }
+}
+
+function closeRecordDetail() {
+    document.getElementById('recordDetailModal').classList.add('hidden');
+    currentRecordId = null;
+}
+
+async function deleteRecord() {
+    if (!currentRecordId) return;
+
+    if (!confirm('この記録を削除しますか？')) return;
+
+    try {
+        const docRef = window.FirestoreSDK.doc(window.db, "records", currentRecordId);
+        await window.FirestoreSDK.deleteDoc(docRef);
+
+        alert('削除しました');
+        closeRecordDetail();
+        loadRecentRecords();
+        updateStats();
+    } catch (e) {
+        console.error("Error deleting record:", e);
+        alert('削除に失敗しました: ' + e.message);
+    }
+}
+
+window.viewRecord = viewRecord;
+window.closeRecordDetail = closeRecordDetail;
+window.deleteRecord = deleteRecord;
